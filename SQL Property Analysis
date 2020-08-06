@@ -1,0 +1,57 @@
+--a
+SELECT OwnerId,Name AS PropertyName, P.Id AS PropertyId
+  FROM OwnerProperty OP INNER JOIN
+  Property P ON OP.PropertyId = P.ID
+  WHERE OwnerId = 1426
+ -- b
+SELECT Name AS PropertyName, CurrentHomeValue
+  FROM OwnerProperty OP INNER JOIN
+  Property P ON OP.PropertyId = P.ID INNER JOIN
+  PropertyFinance PF ON OP.PropertyId = PF.PropertyId
+  WHERE OwnerId = 1426
+
+ --c
+SELECT P.Name AS Property,   P.Id AS PropertyId,PaymentAmount,PaymentFrequencyId, StartDate, EndDate, 
+  CASE 
+  WHEN PaymentFrequencyId = 1 THEN (DATEDIFF(WW,StartDate,EndDate)*PaymentAmount)
+  WHEN PaymentFrequencyId = 2 THEN ((DATEDIFF(WW,StartDate,EndDate)/2)*PaymentAmount)
+  WHEN PaymentFrequencyId = 3 THEN ((DATEDIFF(MM,StartDate,EndDate)+1)*PaymentAmount)
+  END AS SumofAllPayment  , Yield
+  FROM TenantProperty TP INNER JOIN
+       Property P ON TP.PropertyId = P.Id INNER JOIN
+	   PropertyFinance PF ON P.Id = PF.PropertyId INNER JOIN
+       OwnerProperty OP ON P.Id = OP.PropertyId
+	   WHERE OwnerId = 1426
+
+  --C(ii)
+SELECT Yield
+  FROM PropertyFinance
+  WHERE PropertyId IN (SELECT P.Id 
+  FROM OwnerProperty OP INNER JOIN
+  Property P ON OP.PropertyId = P.ID
+  WHERE OP.OwnerId = 1426)
+
+  --D
+SELECT J.JobDescription, Case JWL.IsActive WHEN 1 THEN 'Available' END 'Job Status'
+  FROM Job J, JobWatchList JWL 
+  WHERE J.Id = JWL.Id AND (JWL.IsActive = 1 AND J.JobStatusId =1)
+
+
+SELECT OP.PropertyId, P.Name AS PropertyName,FirstName, LastName,PaymentAmount,TPF.Code AS RentalPayment
+  FROM OwnerProperty OP inner Join
+  Property P ON OP.PropertyId = P.ID inner join
+  TenantProperty TP ON OP.PropertyId = TP.PropertyId inner join
+  Person PR ON TP.TenantId = PR.Id inner join 
+  TenantPaymentFrequencies TPF ON TP.PaymentFrequencyId = TPF.Id
+  WHERE OwnerId = 1426 and (PR.IsActive=1 and TP.IsActive =1)
+
+
+
+
+
+
+
+
+   
+
+  
