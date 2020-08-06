@@ -45,6 +45,21 @@ SELECT OP.PropertyId, P.Name AS PropertyName,FirstName, LastName,PaymentAmount,T
   TenantPaymentFrequencies TPF ON TP.PaymentFrequencyId = TPF.Id
   WHERE OwnerId = 1426 and (PR.IsActive=1 and TP.IsActive =1)
 
+Task 2
+
+SELECT PR.FirstName,PR.LastName,P.Name, Number, Street, Bedroom,Bathroom, PE.Description ' Expenses', Amount,Date
+  FROM Person PR  inner join
+  OwnerProperty OP on PR.Id = OP.OwnerId inner join
+  Property P on OP.PropertyId = P.Id inner join
+  Address A on P.AddressId = A.AddressId inner join
+  TenantProperty TP on P.ID = TP.PropertyId inner join
+  TenantPaymentFrequencies TPF on TP.PaymentFrequencyId = TPF.Id inner join
+  PropertyExpense PE on P.Id = PE.PropertyId
+  where P.Name ='Property A' 
+   
+
+
+
 
 
 
