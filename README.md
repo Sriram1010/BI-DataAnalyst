@@ -1,2 +1,2 @@
-# BI-DataAnalyst
-MVP studio - Internship Property Analysis
+# Property Analysis
+MVP studio - Internship 
