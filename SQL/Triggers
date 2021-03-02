@@ -1,0 +1,70 @@
+create table tblAuditData(
+ID int Identity (1,1),
+Summary nvarchar(200)
+)
+
+--Insert Trigger
+create trigger	New_author_Data 
+on tblAuthor
+For Insert 
+as
+Begin
+	Declare @ID int
+	select @ID = AuthorId from inserted	
+
+	insert into tblAuditData
+	values ('New Author wiht ID = ' + cast(@ID as nvarchar(20))+' is added at '+CAST(getdate() as nvarchar(20)))
+end
+
+--Delete Trigger
+create trigger	New_author_Delete_Record 
+on tblAuthor
+For Delete 
+as
+Begin
+	Declare @ID int, @Name nvarchar(50)
+	select @ID = AuthorId from deleted 	
+	select @Name = AuthorName from deleted 	
+
+	insert into tblAuditData
+	values ('Author with ID = ' + cast(@ID as nvarchar(20))+'and Name = '+ @Name+' is deleted at '+CAST(getdate() as nvarchar(20)))
+end
+
+--Update Trigger
+create trigger	New_author_Update
+on tblAuthor
+For Update 
+as
+Begin
+	select * from Inserted
+	select * from deleted
+end
+
+set Identity_Insert tblAuthor on
+insert into tblAuthor values('Krishnan')
+set Identity_Insert tblAuthor off
+select * from tblAuthor
+select * from tblAuditData
+
+delete from tblAuthor
+where AuthorId in (26,33)
+
+update tblAuthor
+set AuthorName='Sriram' where AuthorId=34
+
+select * from tblEpisode
+
+create view EpisodeDetails
+as
+select a.AuthorName,d.DoctorName,e.EpisodeType,e.Title,e.EpisodeDate from 
+tblEpisode e
+inner join tblDoctor d on e.DoctorId=d.DoctorId
+inner join tblAuthor a on e.AuthorId=a.AuthorId
+
+select * from EpisodeDetails
+create table tbltest(
+ID int Identity(1,1),
+[Text] nvarchar(200)
+)
+
+drop ifexists tbltest
