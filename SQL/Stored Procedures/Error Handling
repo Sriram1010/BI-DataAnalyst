@@ -1,0 +1,77 @@
+
+ ---stored Procedures using @@error--
+create procedure spSellProduct
+@ProductID int,
+@QuantityTosell int
+as
+Begin
+	Declare @StockAvailable int
+	select @StockAvailable =QtyAvilable from Products where ProductID =@ProductID
+
+	if(@StockAvailable<@QuantityTosell)
+		Begin
+		Raiserror('Not enough stock avilable',16,1)
+		end
+	else
+		begin
+		begin Transaction 
+		update Products set QtyAvilable = (QtyAvilable-@QuantityTosell) where ProductID =@ProductID
+		Declare @MaxProductSalesID int
+		select @MaxProductSalesID = case when Max(ProductSalesID) is null then 0
+										else max(ProductSalesID) end  
+										from Sales
+		set @MaxProductSalesID =@MaxProductSalesID+1
+		insert into Sales values (@MaxProductSalesID,@ProductID,@QuantityTosell)
+		if(@@ERROR <>0)
+		begin
+			rollback Transaction
+			print('Transaction rollbacked')
+		end
+		else
+		begin
+			commit transaction
+		end
+	end
+end
+--------------------------------------
+ ---stored Procedures using try and catch -- easy method
+
+create procedure spSellProductTry
+@ProductID int,
+@QuantityTosell int
+as
+Begin
+	Declare @StockAvailable int
+	select @StockAvailable =QtyAvilable from Products where ProductID =@ProductID
+
+	if(@StockAvailable<@QuantityTosell)
+		Begin
+		Raiserror('Not enough stock avilable',16,1)
+		end
+	else
+		begin
+		  begin try
+			begin Transaction 
+			update Products set QtyAvilable = (QtyAvilable-@QuantityTosell) where ProductID =@ProductID
+			Declare @MaxProductSalesID int
+			select @MaxProductSalesID = case when Max(ProductSalesID) is null then 0
+											else max(ProductSalesID) end  
+											from Sales
+			set @MaxProductSalesID =@MaxProductSalesID+1
+			insert into Sales values (@MaxProductSalesID,@ProductID,@QuantityTosell)
+			commit transaction
+		 end try
+		 begin catch
+		  rollback transaction
+		  select 
+		  ERROR_NUMBER () as ErrorNumber,
+		  ERROR_MESSAGE() as ErrorMessage,
+		  ERROR_PROCEDURE() as ErrorPrpcedure,
+		  ERROR_STATE() as ErrorState,
+		  ERROR_SEVERITY() as ErrorSeverity,
+		  ERROR_LINE() as ErrorLine
+		end catch
+	end
+end
+
+-------------
