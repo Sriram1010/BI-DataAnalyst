@@ -1,0 +1,26 @@
+CREATE PROCEDURE [dbo].[School]
+@Location nvarchar(100), 
+@Distance int
+
+AS
+BEGIN
+
+DECLARE
+@GEO1 GEOGRAPHY = NULL,
+@LAT decimal(10,8) = 0,
+@LONG decimal(11,8) = 0
+
+select @LAT= Latitude from DimGeography where Location = @Location
+select @LONG = Longitude from DimGeography where Location = @Location
+set @GEO1= geography::Point(@LAT, @LONG, 4326)
+
+
+SELECT ds.SchoolType, ds.SchoolName,ds.SchoolAddress, ds.Suburb,
+LEFT(CONVERT(float,(@geo1.STDistance(geography::Point(ISNULL(ds.Latitude,0), ISNULL(ds.Longitude,0), 4326)))/1000),4)+' Km' as Distance
+from DimAusLocalSchool ds
+WHERE (@geo1.STDistance(geography::Point(ISNULL(ds.Latitude,0),ISNULL(ds.Longitude,0), 4326)))/1000 < @Distance
+order by DISTANCE asc
+end 
+GO
+
+
