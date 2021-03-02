@@ -1,1 +1,2 @@
 
+# MVP studio - SQL Queries 
