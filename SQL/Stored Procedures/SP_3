@@ -1,0 +1,13 @@
+CREATE procedure [dbo].[PropertyValue]
+@Location nvarchar(255)
+
+as 
+begin
+select Location,City,Suburb,HouseMedianValue as Value2018,Power(1+0.06,1)*HouseMedianValue as Value1Y,
+Power(1+0.06,5)*HouseMedianValue as Value5Y,Power(1+0.06,10)*HouseMedianValue as Value10Y
+from MedianPropertyValue
+where UpdatedYear = 2018 and Location = @Location
+end
+GO
+
+
