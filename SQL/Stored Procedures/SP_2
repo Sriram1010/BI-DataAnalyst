@@ -1,0 +1,25 @@
+
+CREATE PROCEDURE [dbo].[GeographyIDFilter]
+@Suburb nvarchar(100), 
+@Distance int
+
+AS
+BEGIN
+
+DECLARE
+@GEO1 GEOGRAPHY = NULL,
+@LAT decimal(10,8) = 0,
+@LONG decimal(11,8) = 0
+
+select @LAT= Latitude from RentalMedian where Location = @Suburb
+select @LONG = Longitude from RentalMedian where Location = @Suburb
+set @GEO1= geography::Point(@LAT, @LONG, 4326)
+
+SELECT rm.Location,LEFT(CONVERT(float,(@geo1.STDistance(geography::Point(ISNULL(rm.Latitude,0), ISNULL(rm.Longitude,0), 4326)))/1000),4)+' Km' as Distance, 
+rm.PropertyType,rm.RentalMedianValue as MedianRentalValue, 52*rm.RentalMedianValue as MedainYearlyIncome
+from RentalMedian rm
+WHERE (@geo1.STDistance(geography::Point(ISNULL(rm.Latitude,0),ISNULL(rm.Longitude,0), 4326)))/1000 < @Distance
+order by DISTANCE asc
+end 
+GO
+
