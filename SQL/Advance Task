@@ -1,0 +1,64 @@
+select dg.SuburbKey,ds.StateKey,c.Postcode,c.Year,c.Quarter,c.OffenceCategory,c.OffenceSubcategory,c.IncidentsRecorded,c.District 
+from Crime c
+inner join DimGeography dg on c.State = dg.StateCode
+inner join DimState ds on c.State = ds.StateCode
+where c.Suburb =dg.Suburb and c.Postcode = dg.Postcode
+
+
+select dg.SuburbKey,ds.StateKey,dl.SchoolKey,dt.TransportKey,c.Postcode,c.Year,c.Quarter,c.OffenceCategory,c.OffenceSubcategory,c.IncidentsRecorded,c.District 
+from Crime c
+inner join DimGeography dg on c.Suburb = dg.Suburb 
+inner join DimState ds on c.State = ds.StateCode
+inner join DimAusLocalSchool dl on c.Suburb = dl.Suburb
+inner join DimTransport dt on c.Suburb = dt.Suburb
+where c.State = dg.StateCode and c.State = dl.StateCode and c.State = dt.StateCode 
+and c.Postcode = dg.Postcode and c.Postcode = dl.Postcode
+
+
+
+--suburbkey
+select dg.SuburbKey,dg.Suburb,dg.StateCode
+from Crime c
+left join DimGeography dg on c.State = dg.StateCode
+where c.Suburb =dg.Suburb 
+
+--schoolkey
+select dl.SchoolKey,dl.Postcode,dl.StateCode,dl.Suburb
+from Crime c
+inner join DimAusLocalSchool dl on c.State = dl.StateCode 
+where c.Suburb = dl.Suburb and c.Postcode = dl.Postcode
+
+select dt.TransportKey,dt.Suburb,dt.StateCode
+from Crime c
+inner join DimTransport dt on c.State = dt.StateCode 
+where c.Suburb = dt.Suburb
+
+-----------FactSuburbPopulation----
+select distinct sp.Population,g.SuburbKey,s.StateKey,sp.StateName 
+from SuburbPopulation sp
+inner join DimGeography g on sp.Suburb = g.Suburb
+inner join DimState s on sp.StateName = s.StateName
+where g.StateCode = sp.StateCode 
+
+-----------FactSuburbRentalMedian----
+select dg.SuburbKey,ds.StateKey, rm.Postcode,rm.City,rm.StateName,rm.PropertyType,rm.RentalMedianValue
+from RentalMedian rm
+inner join DimGeography dg on rm.Suburb= dg.Suburb
+inner join DimState ds on rm.StateCode = ds.StateCode
+where (rm.StateCode = dg.StateCode and rm.Postcode = dg.Postcode)
+
+-----------FactSuburbMedianPropertyValue----
+select dg.SuburbKey,ds.StateKey, dl.SchoolKey, mp.HouseMedianValue,mp.UpdatedYear,mp.UpdateMonth, mp.DwellingType
+from MedianPropertyValue mp
+inner join DimGeography dg on mp.Suburb= dg.Suburb
+inner join DimState ds on mp.StateCode = ds.StateCode
+inner join DimAusLocalSchool dl on mp.Suburb = dl.Suburb
+where (mp.StateCode = dg.StateCode and mp.StateCode = dl.StateCode)
+
+
+
+
+
+
+
+
